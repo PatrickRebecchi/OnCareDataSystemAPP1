@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OnCareDataSystem.Data.Context;
 using OnCareDataSystem.Models.DTOs;
 using OnCareDataSystem.Models.Entities;
 
@@ -12,9 +14,9 @@ namespace OnCareDataSystem.Controllers
     public class EnderecoController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly YourDbContext _context;
+        private readonly AppDbContext _context;
 
-        public EnderecoController(IMapper mapper, YourDbContext context)
+        public EnderecoController(IMapper mapper, AppDbContext context)
         {
             _mapper = mapper;
             _context = context;

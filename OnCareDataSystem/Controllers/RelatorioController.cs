@@ -1,7 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OnCareDataSystem.Data.Context;
+using OnCareDataSystem.Models;
 using OnCareDataSystem.Models.DTOs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OnCareDataSystem.Controllers
 {
@@ -11,9 +16,9 @@ namespace OnCareDataSystem.Controllers
     public class RelatorioController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly YourDbContext _context;
+        private readonly AppDbContext _context;
 
-        public RelatorioController(IMapper mapper, YourDbContext context)
+        public RelatorioController(IMapper mapper, AppDbContext context)
         {
             _mapper = mapper;
             _context = context;
@@ -56,8 +61,13 @@ namespace OnCareDataSystem.Controllers
                 return BadRequest();
             }
 
-            var relatorio = _mapper.Map<Relatorio>(relatorioDTO);
-            _context.Entry(relatorio).State = EntityState.Modified;
+            var relatorioExistente = await _context.Relatorios.FindAsync(id);
+            if (relatorioExistente == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(relatorioDTO, relatorioExistente);
 
             try
             {
@@ -98,5 +108,4 @@ namespace OnCareDataSystem.Controllers
             return _context.Relatorios.Any(e => e.Id == id);
         }
     }
-
 }

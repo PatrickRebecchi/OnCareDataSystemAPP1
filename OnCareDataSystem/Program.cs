@@ -1,5 +1,6 @@
 using MudBlazor.Services;
 using OnCareDataSystem.Components;
+using OnCareDataSystem.Mappings;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,8 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 builder.Services.AddMudServices();
+builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddControllers();
 
 var app = builder.Build();
 

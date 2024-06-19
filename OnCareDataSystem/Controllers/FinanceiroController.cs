@@ -1,7 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OnCareDataSystem.Data.Context;
+using OnCareDataSystem.Models;
 using OnCareDataSystem.Models.DTOs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OnCareDataSystem.Controllers
 {
@@ -11,9 +16,9 @@ namespace OnCareDataSystem.Controllers
     public class FinanceiroController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly YourDbContext _context;
+        private readonly AppDbContext _context;
 
-        public FinanceiroController(IMapper mapper, YourDbContext context)
+        public FinanceiroController(IMapper mapper, AppDbContext context)
         {
             _mapper = mapper;
             _context = context;
@@ -41,11 +46,18 @@ namespace OnCareDataSystem.Controllers
         [HttpPost]
         public async Task<ActionResult<FinanceiroDTO>> CreateFinanceiro(FinanceiroDTO financeiroDTO)
         {
-            var financeiro = _mapper.Map<Financeiro>(financeiroDTO);
-            _context.Financeiros.Add(financeiro);
-            await _context.SaveChangesAsync();
+            try
+            {
+                var financeiro = _mapper.Map<Financeiro>(financeiroDTO);
+                _context.Financeiros.Add(financeiro);
+                await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetFinanceiro), new { id = financeiro.Id }, _mapper.Map<FinanceiroDTO>(financeiro));
+                return CreatedAtAction(nameof(GetFinanceiro), new { id = financeiro.Id }, _mapper.Map<FinanceiroDTO>(financeiro));
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpPut("{id}")]
@@ -56,8 +68,13 @@ namespace OnCareDataSystem.Controllers
                 return BadRequest();
             }
 
-            var financeiro = _mapper.Map<Financeiro>(financeiroDTO);
-            _context.Entry(financeiro).State = EntityState.Modified;
+            var financeiroExistente = await _context.Financeiros.FindAsync(id);
+            if (financeiroExistente == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(financeiroDTO, financeiroExistente);
 
             try
             {
@@ -98,5 +115,5 @@ namespace OnCareDataSystem.Controllers
             return _context.Financeiros.Any(e => e.Id == id);
         }
     }
-
 }
+

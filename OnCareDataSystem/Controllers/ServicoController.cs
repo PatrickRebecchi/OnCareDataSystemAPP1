@@ -1,7 +1,12 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OnCareDataSystem.Data.Context;
+using OnCareDataSystem.Models;
 using OnCareDataSystem.Models.DTOs;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OnCareDataSystem.Controllers
 {
@@ -11,9 +16,9 @@ namespace OnCareDataSystem.Controllers
     public class ServicoController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly YourDbContext _context;
+        private readonly AppDbContext _context;
 
-        public ServicoController(IMapper mapper, YourDbContext context)
+        public ServicoController(IMapper mapper, AppDbContext context)
         {
             _mapper = mapper;
             _context = context;
@@ -56,8 +61,13 @@ namespace OnCareDataSystem.Controllers
                 return BadRequest();
             }
 
-            var servico = _mapper.Map<Servico>(servicoDTO);
-            _context.Entry(servico).State = EntityState.Modified;
+            var servicoExistente = await _context.Servicos.FindAsync(id);
+            if (servicoExistente == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(servicoDTO, servicoExistente);
 
             try
             {
@@ -98,5 +108,4 @@ namespace OnCareDataSystem.Controllers
             return _context.Servicos.Any(e => e.Id == id);
         }
     }
-
 }

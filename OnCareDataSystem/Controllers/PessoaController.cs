@@ -1,6 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OnCareDataSystem.Data.Context;
+using OnCareDataSystem.Models;
 using OnCareDataSystem.Models.DTOs;
 
 namespace OnCareDataSystem.Controllers
@@ -11,9 +14,9 @@ namespace OnCareDataSystem.Controllers
     public class PessoaController : ControllerBase
     {
         private readonly IMapper _mapper;
-        private readonly YourDbContext _context;
+        private readonly AppDbContext _context;
 
-        public PessoaController(IMapper mapper, YourDbContext context)
+        public PessoaController(IMapper mapper, AppDbContext context)
         {
             _mapper = mapper;
             _context = context;
